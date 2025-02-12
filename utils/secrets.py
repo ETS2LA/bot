@@ -2,6 +2,14 @@ CLIENT_TOKEN: str = ""
 """The discord client token for the bot."""
 SERVER_ID: int = 0
 """The server ID the bot should listen to."""
+UMAMI_LOGIN: str = ""
+"""The login for ETS2LA's Umami analytics."""
+UMAMI_PASSWORD: str = ""
+"""The password for ETS2LA's Umami analytics."""
+UMAMI_ID: str = ""
+"""The Umami website ID for ETS2LA's analytics."""
+ADMINS: list[int] = []
+"""The list of people who are allowed to use admin commands."""
 
 filename = ".env"
 for line in open(filename).readlines():
@@ -9,3 +17,11 @@ for line in open(filename).readlines():
         CLIENT_TOKEN = line.split("=")[1].strip()
     if line.startswith("SERVER"):
         SERVER_ID = int(line.split("=")[1].strip())
+    if line.startswith("UMAMI_LOGIN"):
+        UMAMI_LOGIN = line.split("=")[1].strip()
+    if line.startswith("UMAMI_PASS"):
+        UMAMI_PASSWORD = line.split("=")[1].strip()
+    if line.startswith("UMAMI_ID"):
+        UMAMI_ID = line.split("=")[1].strip()
+    if line.startswith("ADMINS"):
+        ADMINS = list(map(int, line.split("=")[1].strip().split(",")))

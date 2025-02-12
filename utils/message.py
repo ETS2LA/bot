@@ -14,10 +14,16 @@ def info_embed(title: str, description: str):
     embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
     return embed
 
-async def cooldown_embed(ctx: commands.Context, retry_after: float, delete_original: bool = True):
+async def cooldown_embed(ctx: commands.Context, error: commands.CommandOnCooldown, delete_original: bool = True):
     if delete_original:
         await ctx.message.delete()
     
-    timestamp = time.time() + retry_after + 1
-    embed = discord.Embed(title="Cooldown", description=f"You can use the command again <t:{round(timestamp)}:R>.\nThis message will delete itself once the cooldown has passed.", color=discord.Color.yellow())
-    await ctx.send(embed=embed, delete_after=retry_after)
+    actor = "You"
+    if error.type == commands.BucketType.guild:
+        actor = "This server"
+    elif error.type == commands.BucketType.channel:
+        actor = "This channel" 
+    
+    timestamp = time.time() + error.retry_after + 1
+    embed = discord.Embed(title="Cooldown", description=f"{actor} can use `{ctx.command.name}` again after <t:{round(timestamp)}:R>.\nThis message will delete itself once the cooldown has passed.", color=discord.Color.yellow())
+    await ctx.send(embed=embed, delete_after=error.retry_after)

@@ -14,13 +14,6 @@ class xdd(commands.Cog):
             member = ctx.author
         
         await ctx.send(f"<:xdx:1195115294696415352>")
-        
-    @xdd.error
-    async def xdd_error(self, ctx: commands.Context, error: commands.CommandError):
-        if isinstance(error, commands.CommandOnCooldown):
-            await cooldown_embed(ctx, error.retry_after)
-        else:
-            raise error
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(xdd(bot))

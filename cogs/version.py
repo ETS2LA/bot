@@ -1,4 +1,4 @@
-from utils.ets2la import get_ets2la_commits, get_url_for_hash
+from utils.update import get_commits_for, get_url_for_hash
 from utils.message import error_embed, success_embed, info_embed
 from discord.ext import commands
 import datetime
@@ -15,7 +15,7 @@ class version(commands.Cog):
             return
         
         target_hash = version
-        commits = get_ets2la_commits()
+        commits = get_commits_for("ets2la")
         if len(commits) == 0:
             await ctx.send(embed=error_embed("Failed to fetch ETS2LA commits."))
             return
