@@ -1,4 +1,5 @@
 from discord.ext import commands
+from utils.update import *
 from utils.message import *
 import datetime
 import discord
@@ -11,6 +12,8 @@ file_path = "assets/translations"
 class translation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        update_repo("translations")
+        
         files = os.listdir(file_path)
         
         self.languages = []
