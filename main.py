@@ -43,7 +43,6 @@ async def update_repo_task():
     print("Started repository update task")
     while not bot.is_closed():
         await update_repo("ets2la")
-        await update_repo("translations")
         await asyncio.sleep(1800) # 1/2 hour
         
 @bot.command("update")

@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, tasks
 from utils.update import *
 from utils.message import *
 import datetime
@@ -8,14 +8,18 @@ import sys
 import os
 
 file_path = "assets/translations"
+update_channel = 1272294263874654240
 
 class translation(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        update_repo("translations")
+    keys = None
+    
+    @tasks.loop(minutes=10)
+    async def update_repo_task(self):
+        await update_repo("translations")
         
         files = os.listdir(file_path)
         
+        self.old_keys = self.keys
         self.languages = []
         self.keys = []
         self.translations = {}
@@ -30,9 +34,37 @@ class translation(commands.Cog):
                     with open(f"{file_path}/{file}", "r", encoding="utf-8") as f:
                         data = yaml.safe_load(f)
                         self.keys = data
-                    
-        for language in self.languages:
-            print(f"--> Loaded language {language['name_en']} ({language['iso_code']})")
+            
+        if self.old_keys and self.old_keys != self.keys:
+            new_keys = [key for key in self.keys if key not in self.old_keys]
+            removed_keys = [key for key in self.old_keys if key not in self.keys]
+            messages = []
+            messages.append("<@&1271896625438003320>" + f"\n-# Update found on <t:{int(datetime.datetime.now().timestamp())}>")
+            
+            if new_keys:
+                message = "### New keys found.\nThese are translations that haven't been in the app before.\n\n"
+                message += "```diff\n"
+                for key in new_keys:
+                    message += f"+ {key}\n"
+                message += "```"
+                messages.append(message)
+            if removed_keys:
+                message = "### Removed keys found.\nThese are translations that have been removed from the app.\n\n"
+                message += "```diff\n"
+                for key in removed_keys:
+                    message += f"- {key}\n"
+                message += "```"
+                messages.append(message)
+                
+            if new_keys or removed_keys:
+                for message in messages:
+                    await self.bot.get_channel(update_channel).send(message)
+    
+    def __init__(self, bot):
+        print("┏━ Translations initialized")
+        self.bot = bot
+        self.update_repo_task.start()
+        print("┣━ Started translation update task")
 
     async def list(self, ctx: commands.Context, type: str):
         if type == "languages":
