@@ -17,7 +17,8 @@ cogs = [
     "version",
     "stats",
     "translation",
-    "xdd"
+    "xdd",
+    "update_watcher"
 ]
 
 @bot.event
@@ -26,8 +27,6 @@ async def on_ready():
     for cog in cogs:
         await bot.load_extension(f"cogs.{cog}")
         print(f"- Loaded {cog}")
-        
-    bot.loop.create_task(update_repo_task())
     
 @bot.event
 async def on_command_error(ctx, error: commands.CommandError):
@@ -37,13 +36,6 @@ async def on_command_error(ctx, error: commands.CommandError):
         await cooldown_embed(ctx, error)
     else:
         await ctx.send(embed=error_embed(f"The command ran into an error.\n```{error}```"))
-    
-async def update_repo_task():
-    await bot.wait_until_ready()
-    print("Started repository update task")
-    while not bot.is_closed():
-        await update_repo("ets2la")
-        await asyncio.sleep(1800) # 1/2 hour
         
 @bot.command("update")
 async def update_repo_command(ctx: commands.Context, repo: str):
