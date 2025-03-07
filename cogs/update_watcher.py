@@ -33,6 +33,7 @@ class update_watcher(commands.Cog):
                 author = last_commit.author.name
                 timestamp = int(last_commit.committed_date)
                 link = get_url_for_hash(last_commit.hexsha, "ets2la")
+                commit_hash = last_commit.hexsha[:9]
                 added_lines = last_commit.stats.total['insertions']
                 removed_lines = last_commit.stats.total['deletions']
                 
@@ -47,7 +48,7 @@ class update_watcher(commands.Cog):
                     message += f"+ {added_lines} additions\n"
                     message += f"- {removed_lines} deletions\n"
                     message += "```\n\n"
-                    message += f"-# Commit by **{author}** on <t:{timestamp}>"
+                    message += f"-# Commit **{commit_hash}** by **{author}** on <t:{timestamp}>"
                     
                     await channel.send(message)
 
