@@ -29,13 +29,17 @@ class verify(commands.Cog):
         save_verified()
 
     def has_link(self, message):
-        return any(link in message.content for link in ["https://", "http://", "www.", ".com", ".net", ".org"])
+        links = ["https://", "http://", "www.", ".com", ".net", ".org"]
+        excluded_links = ["discord.gg", "discordapp.com", "discord.com"]
+        return any(link in message.content for link in links) and not any(excluded in message.content for excluded in excluded_links)
     
     def has_money(self, message):
         return any(symbol in message.content for symbol in ["$", "€", "£", "¥", "₹", "dollar"])
     
     def has_steam(self, message):
-        return any(steam in message.content for steam in ["steam", "steamcommunity", "steampowered"])
+        steam = ["steam", "steamcommunity", "steampowered"]
+        excluded_steam = ["workshop", "steamid", "steamid3", "steamid64"]
+        return any(steam_word in message.content for steam_word in steam) and not any(excluded_steam_word in message.content for excluded_steam_word in excluded_steam)
 
     @commands.Cog.listener()
     async def on_message(self, message):
