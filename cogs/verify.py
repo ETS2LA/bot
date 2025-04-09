@@ -65,7 +65,7 @@ class verify(commands.Cog):
             await message.reply(embed=error_embed(text, title="Possible scammer detected"))
             await author.timeout(datetime.timedelta(days=1), reason="Possible scammer detected")
         else:
-            await message.reply(embed=success_embed("Your first message indicates no signs of potential scamming.", title="Verified"), delete_after=5)
+            await message.reply(embed=success_embed("Your first message indicates no signs of potential scamming.\n-# You might see this message multiple times due to updates to the verification system.", title="Verified"), delete_after=5)
             verified.append(author.id)
         
 
