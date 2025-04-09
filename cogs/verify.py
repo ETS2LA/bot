@@ -34,9 +34,6 @@ class verify(commands.Cog):
     def has_money(self, message):
         return any(symbol in message.content for symbol in ["$", "€", "£", "¥", "₹", "dollar"])
     
-    def has_email(self, message):
-        return any(email in message.content for email in ["@"])
-    
     def has_steam(self, message):
         return any(steam in message.content for steam in ["steam", "steamcommunity", "steampowered"])
 
@@ -48,19 +45,16 @@ class verify(commands.Cog):
         
         has_money = self.has_money(message)
         has_link = self.has_link(message)
-        has_email = self.has_email(message)
         has_steam = self.has_steam(message)
         
-        if has_money or has_link or has_email or has_steam:
-            text = "<@&1271896625438003320> "
+        if has_money or has_link or has_steam:
+            text = "<@&1132519946799284315> "
             text += "Please check the user manually. "
             text += "They were flagged because of:"
             if has_money:
                 text += "\n- First message contains money related terms."
             if has_link:
                 text += "\n- First message contains links."
-            if has_email:
-                text += "\n- First message contains email related terms."
             if has_steam:
                 text += "\n- First message references *Steam*."
                 
