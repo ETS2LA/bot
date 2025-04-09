@@ -18,15 +18,19 @@ cogs = [
     "stats",
     "translation",
     "xdd",
-    "update_watcher"
+    "update_watcher",
+    "verify",
 ]
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     for cog in cogs:
-        await bot.load_extension(f"cogs.{cog}")
-        print(f"- Loaded {cog}")
+        try:
+            await bot.load_extension(f"cogs.{cog}")
+            print(f"- Loaded {cog}")
+        except Exception as e:
+            print(f"- Failed to load {cog}: {e}")
     
 @bot.event
 async def on_command_error(ctx, error: commands.CommandError):
