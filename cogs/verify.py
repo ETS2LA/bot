@@ -30,7 +30,7 @@ class verify(commands.Cog):
 
     def has_link(self, message):
         links = ["https://", "http://", "www.", ".com", ".net", ".org"]
-        excluded_links = ["discord.gg", "discordapp.com", "discord.com", "tenor.com", "giphy.com", "youtube.com", "twitch.tv", "youtu.be"]
+        excluded_links = ["discord.gg", "discordapp.com", "discord.com", "tenor.com", "giphy.com", "youtube.com", "twitch.tv", "youtu.be", "ets2la.com"]
         return any(link in message.content for link in links) and not any(excluded in message.content for excluded in excluded_links)
     
     def has_money(self, message):
