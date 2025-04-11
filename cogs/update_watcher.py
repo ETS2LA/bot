@@ -63,12 +63,14 @@ class update_watcher(commands.Cog):
             if title.endswith("\n"):
                 title = title[:-1]
             
-            description = last_commit.message.replace(title + "\n\n", "")
+            description = last_commit.message.replace(title + "\n\n", "").replace(title, "").strip()
             description.replace("\\n", "\n")
             if description.startswith("\n"):
                 description = description[1:]
             if description.endswith("\n"):
                 description = description[:-1]
+                
+            has_description = description != ""
                 
             author = last_commit.author.name
             timestamp = int(last_commit.committed_date)
@@ -78,9 +80,10 @@ class update_watcher(commands.Cog):
             
             channel = self.bot.get_channel(target_channel)
             if channel:
-                message = f"### Title\n"
+                message = f"**Title**\n"
                 message += f"{title}\n\n"
-                message += f"**Description**\n{description}\n\n"
+                if has_description:
+                    message += f"**Description**\n{description}\n\n"
                 message += f"**Changes**\n"
                 message += f"-# [View detailed information](<{link}>)\n"
                 message += f"```\n"
