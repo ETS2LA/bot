@@ -38,7 +38,7 @@ async def update_repo(repo_name: str = "ets2la"):
         repo = git.Repo(download_folder + "/" + repo_name)
     except git.exc.InvalidGitRepositoryError:
         print("Cloning repository")
-        repo = git.Repo.clone_from(urls[repo_name], download_folder + "/" + repo_name, multi_options=["--depth=20 --branch=rewrite --single-branch"] if repo_name == "ets2la" else [])
+        repo = git.Repo.clone_from(urls[repo_name], download_folder + "/" + repo_name, multi_options=["--depth=20 --single-branch"] if repo_name == "ets2la" else [])
         
     pull_result = repo.remotes.origin.pull()
     # pull_result is a list of FetchInfo objects now.  We need to check if
