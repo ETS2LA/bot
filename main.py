@@ -1,17 +1,15 @@
 from utils.message import error_embed, success_embed, cooldown_embed, info_embed
+from utils.logger import setup_logger
 from utils.update import update_repo
-
-from utils.secrets import CLIENT_TOKEN, ADMINS
-from utils.config import INTENTS
+import utils.variables as variables
 
 from discord.ext import commands
-import discord
 
-import traceback
-import asyncio
-
-bot = commands.Bot(command_prefix="!", intents=INTENTS)
-
+logger = setup_logger()
+bot = commands.Bot(
+    command_prefix=variables.PREFIX, 
+    intents=variables.INTENTS
+)
 cogs = [
     "ping",
     "version",
@@ -24,13 +22,13 @@ cogs = [
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    logger.info(f"Logged in as {bot.user}")
     for cog in cogs:
         try:
             await bot.load_extension(f"cogs.{cog}")
-            print(f"- Loaded {cog}")
+            logger.info(f"- Loaded {cog}")
         except Exception as e:
-            print(f"- Failed to load {cog}: {e}")
+            logger.error(f"- Failed to load {cog}: {e}")
     
 @bot.event
 async def on_command_error(ctx, error: commands.CommandError):
@@ -44,7 +42,7 @@ async def on_command_error(ctx, error: commands.CommandError):
 @bot.command("update")
 async def update_repo_command(ctx: commands.Context, repo: str):
     author = ctx.author
-    if author.id not in ADMINS:
+    if author.id not in variables.ENV.ADMINS:
         await ctx.send(embed=error_embed("You do not have permission to run this command."))
         return
     
@@ -55,7 +53,7 @@ async def update_repo_command(ctx: commands.Context, repo: str):
 @bot.command("reload")
 async def reload(ctx: commands.Context, *target_cogs):
     author = ctx.author
-    if author.id not in ADMINS:
+    if author.id not in variables.ENV.ADMINS:
         await ctx.send(embed=error_embed("You do not have permission to run this command."))
         return
     
@@ -79,4 +77,4 @@ async def reload(ctx: commands.Context, *target_cogs):
             await message.edit(embeds=embeds)
         i += 1
 
-bot.run(CLIENT_TOKEN)
+bot.run(variables.ENV.CLIENT_TOKEN)
