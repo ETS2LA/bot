@@ -1,9 +1,13 @@
 from utils.update import get_commits_for, get_url_for_hash
-from utils.message import error_embed, success_embed, info_embed
+from utils.message import error_embed, info_embed
+import utils.variables as variables
+import utils.classes as classes
+
 from discord.ext import commands
 import datetime
 import discord
 
+ets2la_asset = classes.get_asset_with_name("ets2la", variables.ASSET_URLS)
 class version(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -15,7 +19,7 @@ class version(commands.Cog):
             return
         
         target_hash = version
-        commits = get_commits_for("ets2la")
+        commits = get_commits_for(ets2la_asset)
         if len(commits) == 0:
             await ctx.send(embed=error_embed("Failed to fetch ETS2LA commits."))
             return

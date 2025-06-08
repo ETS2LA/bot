@@ -1,15 +1,15 @@
-from discord.ext import commands, tasks
+import utils.classes as classes
 from utils.update import *
 from utils.message import *
+
+from discord.ext import commands, tasks
 import datetime
 import discord
 import yaml
 import sys
 import os
 
-file_path = "assets/translations"
-update_channel = 1272294263874654240
-
+translations_repo = classes.get_asset_with_name("translations", variables.ASSET_URLS).path
 class translation(commands.Cog):
     keys = None
     
@@ -17,7 +17,7 @@ class translation(commands.Cog):
     async def update_repo_task(self):
         await update_repo("translations")
         
-        files = os.listdir(file_path)
+        files = os.listdir(translations_repo)
         
         self.old_keys = self.keys
         self.languages = []
@@ -26,12 +26,12 @@ class translation(commands.Cog):
         for file in files:
             if file.endswith(".yaml"):
                 if not file.startswith("keys"):
-                    with open(f"{file_path}/{file}", "r", encoding="utf-8") as f:
+                    with open(f"{translations_repo}/{file}", "r", encoding="utf-8") as f:
                         data = yaml.safe_load(f)
                         self.translations[data["Language"]["name_en"]] = data["Translations"]
                         self.languages.append(data["Language"])
                 else:
-                    with open(f"{file_path}/{file}", "r", encoding="utf-8") as f:
+                    with open(f"{translations_repo}/{file}", "r", encoding="utf-8") as f:
                         data = yaml.safe_load(f)
                         self.keys = data
             
@@ -58,13 +58,13 @@ class translation(commands.Cog):
                 
             if new_keys or removed_keys:
                 for message in messages:
-                    await self.bot.get_channel(update_channel).send(message)
+                    await self.bot.get_channel(variables.TRANSLATION_UPDATE_CHANNEL).send(message)
     
     def __init__(self, bot):
-        print("┏━ Translations initialized")
+        print("- Translations initialized")
         self.bot = bot
         self.update_repo_task.start()
-        print("┣━ Started translation update task")
+        print("- Started translation update task")
 
     async def list(self, ctx: commands.Context, type: str):
         if type == "languages":
@@ -75,7 +75,7 @@ class translation(commands.Cog):
         elif type == "keys":
             keys_text = "Unfortunately there are too many keys to list here. \
                         We've attached the `keys.yaml` file for you to download and view."
-            await ctx.send(embed=info_embed("Available keys", keys_text), file=discord.File(f"{file_path}/keys.yaml"))
+            await ctx.send(embed=info_embed("Available keys", keys_text), file=discord.File(f"{translations_repo}/keys.yaml"))
         else:
             await ctx.send(embed=error_embed("Invalid type provided, please use either `languages` or `keys`"))
 

@@ -1,22 +1,22 @@
+from utils.message import error_embed, success_embed
+import utils.variables as variables
+
 from discord.ext import commands, tasks
-from utils.message import error_embed, success_embed, cooldown_embed, info_embed
 import datetime
 import discord
 import os
 
-verified = []
-file = "assets/verified.txt"
-if os.path.exists(file):
-    with open(file, "r") as f:
-        verified = [int(line.strip()) for line in f.readlines()]
+if os.path.exists(variables.VERIFIED_USERS_FILE):
+    with open(variables.VERIFIED_USERS_FILE, "r") as f:
+        verified_users = [int(line.strip()) for line in f.readlines()]
 else:
-    with open(file, "w") as f:
+    with open(variables.VERIFIED_USERS_FILE, "w") as f:
         f.write("")
-        verified = []
+        verified_users = []
         
 def save_verified():    
-    with open(file, "w") as f:
-        for user in verified:
+    with open(variables.VERIFIED_USERS_FILE, "w") as f:
+        for user in verified_users:
             f.write(f"{user}\n")
 
 class verify(commands.Cog):
@@ -44,7 +44,7 @@ class verify(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         author = message.author
-        if author.id in verified or author.bot:
+        if author.id in verified_users or author.bot:
             return
         
         has_money = self.has_money(message)
@@ -66,8 +66,7 @@ class verify(commands.Cog):
             await author.timeout(datetime.timedelta(days=1), reason="Possible scammer detected")
         else:
             await message.reply(embed=success_embed("Your first message indicates no signs of potential scamming.\n-# You might see this message multiple times due to updates to the verification system.", title="Verified"), delete_after=5)
-            verified.append(author.id)
-        
+            verified_users.append(author.id)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(verify(bot))

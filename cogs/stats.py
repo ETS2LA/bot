@@ -1,12 +1,10 @@
-from utils.message import success_embed, error_embed, cooldown_embed
-from utils.secrets import UMAMI_LOGIN, UMAMI_PASSWORD, UMAMI_ID
+from utils.message import success_embed, error_embed
+import utils.variables as variables
+
 from discord.ext import commands
 import requests
 import datetime
 import discord
-
-endpoint = "https://umami.ets2la.com/api"
-website_endpoint = endpoint + "/websites/" + UMAMI_ID
 
 class stats(commands.Cog):
     def __init__(self, bot):
@@ -15,13 +13,13 @@ class stats(commands.Cog):
         self.login()
 
     def active_users(self):
-        response = requests.get(f"{website_endpoint}/active", headers={
+        response = requests.get(f"{variables.STATS_API}/active", headers={
             "Authorization": f"Bearer {self.token}"
         })
         return response.json()["x"]
 
     def get_stats(self):
-        url = f"{website_endpoint}/stats"
+        url = f"{variables.STATS_API}/stats"
         url += "?startAt=" + str(int(datetime.datetime.now().timestamp() * 1000) - 86400000)
         url += "&endAt=" + str(int(datetime.datetime.now().timestamp() * 1000))
         url += "&unit=hour&timezone=Europe%2FHelsinki&compare=false"
@@ -40,9 +38,9 @@ class stats(commands.Cog):
         if self.token is not None:
             return
         
-        response = requests.post(f"{endpoint}/auth/login", data={
-            "username": UMAMI_LOGIN, 
-            "password": UMAMI_PASSWORD
+        response = requests.post(f"{variables.STATS_API}/auth/login", data={
+            "username": variables.ENV.UNAMI_USERNAME, 
+            "password": variables.ENV.UNAMI_PASSWORD
         })
         self.token = response.json()["token"]
 

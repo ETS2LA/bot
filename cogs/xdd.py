@@ -1,6 +1,4 @@
-from utils.message import cooldown_embed
 from discord.ext import commands
-import datetime
 import discord
 
 class xdd(commands.Cog):

@@ -1,10 +1,12 @@
 from utils.update import update_repo, get_last_commit, get_url_for_hash
+import utils.variables as variables
+import utils.classes as classes
+
 from discord.ext import commands, tasks
 import datetime
 import discord
 
-target_channel = 1120734880133820537
-
+ets2la_asset = classes.get_asset_with_name("ets2la", variables.ASSET_URLS)
 class update_watcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -12,11 +14,11 @@ class update_watcher(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def update_repo_task(self):
-        updated = await update_repo("ets2la")
+        updated = await update_repo(ets2la_asset)
         print(updated)
         
         if updated:
-            last_commit = get_last_commit("ets2la")
+            last_commit = get_last_commit(ets2la_asset)
             if last_commit:
                 title = last_commit.summary
                 if title.startswith("\n"):
@@ -37,7 +39,7 @@ class update_watcher(commands.Cog):
                 added_lines = last_commit.stats.total['insertions']
                 removed_lines = last_commit.stats.total['deletions']
                 
-                channel = self.bot.get_channel(target_channel)
+                channel = self.bot.get_channel(variables.UPDATE_CHANNEL)
                 if channel:
                     message = f"### Title\n"
                     message += f"{title}\n\n"
@@ -55,7 +57,7 @@ class update_watcher(commands.Cog):
 
     @commands.command()
     async def update_watcher(self, ctx: commands.Context, member: discord.Member = None):
-        last_commit = get_last_commit("ets2la")
+        last_commit = get_last_commit(ets2la_asset)
         if last_commit:
             title = last_commit.summary
             if title.startswith("\n"):
@@ -78,7 +80,7 @@ class update_watcher(commands.Cog):
             added_lines = last_commit.stats.total['insertions']
             removed_lines = last_commit.stats.total['deletions']
             
-            channel = self.bot.get_channel(target_channel)
+            channel = self.bot.get_channel(variables.UPDATE_CHANNEL)
             if channel:
                 message = f"**Title**\n"
                 message += f"{title}\n\n"
