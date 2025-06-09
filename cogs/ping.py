@@ -1,6 +1,9 @@
 from discord.ext import commands
 import datetime
 import discord
+import logging
+
+logger = logging.getLogger()
 
 class ping(commands.Cog):
     def __init__(self, bot):
@@ -13,6 +16,8 @@ class ping(commands.Cog):
         
         time = datetime.datetime.now() - ctx.message.created_at.replace(tzinfo=None)
         await ctx.send(f"pong!\n-# in {time.microseconds / 1000:.0f}ms")
+        logger.info(f"[bold]{member.name}[/bold] pinged the bot in {time.microseconds / 1000:.0f}ms")
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ping(bot))
