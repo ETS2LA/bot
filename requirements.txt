@@ -1,4 +1,6 @@
 GitPython
 requests
-PyYAML
 discord
+PyNaCl
+PyYAML
+rich

@@ -1,17 +1,19 @@
+# Setup logger first to prevent discordpy from hijacking it
+from utils.logger import setup_global_logging
+logger = setup_global_logging()
+
 from utils.message import error_embed, success_embed, cooldown_embed, info_embed
 from utils.update import update_repo
-
-from utils.secrets import CLIENT_TOKEN, ADMINS
-from utils.config import INTENTS
+import utils.variables as variables
 
 from discord.ext import commands
+import traceback
 import discord
 
-import traceback
-import asyncio
-
-bot = commands.Bot(command_prefix="!", intents=INTENTS)
-
+bot = commands.Bot(
+    command_prefix=variables.PREFIX, 
+    intents=variables.INTENTS
+)
 cogs = [
     "ping",
     "version",
@@ -24,13 +26,13 @@ cogs = [
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    logger.info(f"Logged in as {bot.user}")
     for cog in cogs:
         try:
             await bot.load_extension(f"cogs.{cog}")
-            print(f"- Loaded {cog}")
+            logger.info(f"Loaded the {cog} extension")
         except Exception as e:
-            print(f"- Failed to load {cog}: {e}")
+            logger.error(f"Failed to load the {cog} extension:\n{traceback.format_exc()}")
     
 @bot.event
 async def on_command_error(ctx, error: commands.CommandError):
@@ -40,13 +42,18 @@ async def on_command_error(ctx, error: commands.CommandError):
         await cooldown_embed(ctx, error)
     else:
         await ctx.send(embed=error_embed(f"The command ran into an error.\n```{error}```"))
+        trace = "".join(traceback.format_exception(type(error), error, error.__traceback__))
+        logger.error(f"Command ran into an error:\n{trace}")
         
 @bot.command("update")
 async def update_repo_command(ctx: commands.Context, repo: str):
     author = ctx.author
-    if author.id not in ADMINS:
+    if author.id not in variables.ENV.ADMINS:
+        logger.info(f"[bold]{author.name}[/bold] attempted to run the update command without permission on [bold]{repo}[/bold]")
         await ctx.send(embed=error_embed("You do not have permission to run this command."))
         return
+    else:
+        logger.info(f"[bold]{author.name}[/bold] ran the update command on [bold]{repo}[/bold]")
     
     message = await ctx.send(embed=info_embed(f"Updating {repo}", "This may take a while."))
     await update_repo(repo)
@@ -54,29 +61,40 @@ async def update_repo_command(ctx: commands.Context, repo: str):
     
 @bot.command("reload")
 async def reload(ctx: commands.Context, *target_cogs):
+    global cogs
+
+    # Ensure user has permission
     author = ctx.author
-    if author.id not in ADMINS:
+    if author.id not in variables.ENV.ADMINS:
+        logger.info(f"[bold]{author.name}[/bold] attempted to run the reload command without permission")
         await ctx.send(embed=error_embed("You do not have permission to run this command."))
         return
-    
-    i = 0
+    else:
+        logger.info(f"[bold]{author.name}[/bold] ran the reload command")
+
+    # Define variables
+    cogs = cogs if not target_cogs else target_cogs
+    amount = len(cogs)
     embeds = []
-    message = None
-    for cog in cogs if not target_cogs else target_cogs:
-        embeds.append(info_embed("Reloading", f"Reloading `{cog}` ({i + 1}/{len(cogs)})"))
-        i += 1
-    
+
+    # Create initial embed messages
+    for i, cog in enumerate(cogs):
+        embeds.append(info_embed("Reloading", f"Reloading the `{cog}` extension ({i + 1}/{amount})"))
+
+    # Reload extensions and update embeds with results
     message = await ctx.send(embeds=embeds)
-        
-    i = 0
-    for cog in cogs if not target_cogs else target_cogs:
+    for i, cog in enumerate(cogs):
         try:
             await bot.reload_extension(f"cogs.{cog}")
-            embeds[i] = success_embed(f"Reloaded `{cog}` ({i + 1}/{len(cogs)})")
-            await message.edit(embeds=embeds)
+            embeds[i] = success_embed(f"Successfully reloaded the `{cog}` extension ({i + 1}/{amount})")
+            logger.info(f"Successfully reloaded the [bold]{cog}[/bold] extension")
         except Exception as e:
-            embeds[i] = error_embed(f"Failed to reload `{cog}` ({i + 1}/{len(cogs)})\n```{e}```")
-            await message.edit(embeds=embeds)
-        i += 1
-
-bot.run(CLIENT_TOKEN)
+            embeds[i] = error_embed(f"Failed to reload the `{cog}` extension ({i + 1}/{amount})\n```{e}```")
+            if isinstance(e, commands.errors.ExtensionNotLoaded):
+                logger.info(f"Failed to reload the [bold]{cog}[/bold] extension: The extension was not loaded")
+            else:
+                logger.error(f"Failed to reload the [bold]{cog}[/bold] extension:\n{traceback.format_exc()}")
+        message = await message.edit(embeds=embeds)
+        
+# Turn off Discord logging
+bot.run(variables.ENV.CLIENT_TOKEN, log_handler=None)
