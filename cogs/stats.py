@@ -5,6 +5,9 @@ from discord.ext import commands
 import requests
 import datetime
 import discord
+import logging
+
+logger = logging.getLogger()
 
 class stats(commands.Cog):
     def __init__(self, bot):
@@ -38,11 +41,13 @@ class stats(commands.Cog):
         if self.token is not None:
             return
         
-        response = requests.post(f"{variables.STATS_API}/auth/login", data={
-            "username": variables.ENV.UNAMI_USERNAME, 
-            "password": variables.ENV.UNAMI_PASSWORD
+        response = requests.post(f"{variables.UNAMI_API}auth/login", data={
+            "username": variables.ENV.UNAMI_LOGIN, 
+            "password": variables.ENV.UNAMI_PASS
         })
+        
         self.token = response.json()["token"]
+        logger.info("Logged in to Unami API")
 
     @commands.command("stats")
     @commands.cooldown(1, 60, commands.BucketType.channel)
@@ -55,6 +60,7 @@ class stats(commands.Cog):
         stats = self.get_stats()
         if type(stats) != dict:
             await ctx.send(embed=error_embed(f"Something went wrong while fetching the stats.\n```{stats}```"))
+            logger.warning(f"Something went wrong while fetching stats from the Umami API:\n{stats}")
             return
         
         pageviews = stats["pageviews"]["value"]
@@ -75,6 +81,7 @@ class stats(commands.Cog):
         description += f"- Total time: {total_time:.0f} hours"
         
         await ctx.send(embed=success_embed(description, title))
+        logger.info(f"[bold]{member.name}[/bold] requested stats")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(stats(bot))
