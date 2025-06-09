@@ -5,7 +5,10 @@ __pycache__/
 .env
 
 # IDEs
-.vscode
+/.vscode
 
 # Assets
 Assets
+
+# Logs
+bot.log
