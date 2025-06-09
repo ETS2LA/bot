@@ -3,8 +3,10 @@ import utils.variables as variables
 
 from discord.ext import commands, tasks
 import datetime
-import discord
+import logging
 import os
+
+logger = logging.getLogger()
 
 if os.path.exists(variables.VERIFIED_USERS_FILE):
     with open(variables.VERIFIED_USERS_FILE, "r") as f:
@@ -57,16 +59,20 @@ class verify(commands.Cog):
             text += "They were flagged because of:"
             if has_money:
                 text += "\n- First message contains money related terms."
+                logger.info(f"[{author.name}] was flagged as a possible scammer because of money related terms")
             if has_link:
                 text += "\n- First message contains links."
+                logger.info(f"[{author.name}] was flagged as a possible scammer because of links")
             if has_steam:
                 text += "\n- First message references *Steam*."
+                logger.info(f"[{author.name}] was flagged as a possible scammer because of Steam references")
                 
             await message.reply(embed=error_embed(text, title="Possible scammer detected"))
             await author.timeout(datetime.timedelta(days=1), reason="Possible scammer detected")
         else:
             await message.reply(embed=success_embed("Your first message indicates no signs of potential scamming.\n-# You might see this message multiple times due to updates to the verification system.", title="Verified"), delete_after=5)
             verified_users.append(author.id)
+            logger.info(f"[{author.name}] was verified")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(verify(bot))
