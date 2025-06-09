@@ -2,19 +2,19 @@ from discord.ext import commands
 import discord
 import time
 
-def error_embed(description: str, title: str = "Error"):
+def error_embed(description: str, title: str = "Error") -> discord.Embed:
     embed = discord.Embed(title=title, description=description, color=discord.Color.red())
     return embed
 
-def success_embed(description: str, title: str = "Success"):
+def success_embed(description: str, title: str = "Success") -> discord.Embed:
     embed = discord.Embed(title=title, description=description, color=discord.Color.green())
     return embed
 
-def info_embed(title: str, description: str):
+def info_embed(title: str, description: str) -> discord.Embed:
     embed = discord.Embed(title=title, description=description, color=discord.Color.blue())
     return embed
 
-async def cooldown_embed(ctx: commands.Context, error: commands.CommandOnCooldown, delete_original: bool = True):
+async def cooldown_embed(ctx: commands.Context, error: commands.CommandOnCooldown, delete_original: bool = True) -> None:
     if delete_original:
         await ctx.message.delete()
     
