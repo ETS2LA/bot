@@ -27,16 +27,20 @@ for i in _env_data:
 
 ENV = SimpleNamespace(**_env_dictionary)
 """Enviroment variables."""
+ENV.ADMINS = [ENV.ADMINS] if isinstance(ENV.ADMINS, int) else ENV.ADMINS
+"""Explicitly ensure that ENV.ADMINS is a list."""
 
 # General constants
 PREFIX: str = "!"
 """The prefix for commands."""
 LOGGER_NAME: str = "bot"
 """The name of the logging instance."""
-STATS_API = "https://umami.ets2la.com/api/websites/" + ENV.UMAMI_ID
+UNAMI_API = "https://umami.ets2la.com/api/"
 """Unami stats API endpoint"""
+#TRANSLATION_UPDATE_CHANNEL = 1381627489574453258
 TRANSLATION_UPDATE_CHANNEL = 1272294263874654240
 """The channel to send translation updates to."""
+#UPDATE_CHANNEL = 1381627373627244655
 UPDATE_CHANNEL = 1120734880133820537
 """The channel to send updates to."""
 
@@ -48,7 +52,7 @@ LOG_FILE = os.path.join(PATH, "bot.log")
 ASSETS_FOLDER = os.path.join(PATH, "Assets")
 """The path where assets are stored."""
 VERIFIED_USERS_FILE = os.path.join(PATH, "Assets", "verified.txt")
-ASSET_URLS : list[Asset] = {
+ASSET_URLS : list[Asset] = [
     Asset(
         "ETS2LA", 
         "https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist", 
@@ -60,7 +64,7 @@ ASSET_URLS : list[Asset] = {
         "https://github.com/ETS2LA/translations", 
         ASSETS_FOLDER
     )
-}
+]
 """Defintion of assets and their URLs."""
 
 # Discord config
