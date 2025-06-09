@@ -1,16 +1,18 @@
 import utils.variables as variables
 from utils.classes import Asset
+
+import logging
 import git.exc
 import logging
 import git
 import os
 
-logger = logging.getLogger(variables.LOGGER_NAME)
+logger = logging.getLogger()
 
 def get_url_for_hash(hash: str, asset: Asset):
     return f"{asset.url}/commit/{hash}"
 
-def get_last_commit(asset: Asset):
+def get_last_commit(asset: Asset) -> git.Commit:
     try:
         repo = git.Repo(asset.path)
     except git.exc.InvalidGitRepositoryError:
@@ -35,7 +37,7 @@ async def update_repo(asset: Asset):
         repo = git.Repo(asset.path)
     except git.exc.InvalidGitRepositoryError:
         logger.info(f"Cloning {asset.name}...")
-        repo = git.Repo.clone_from(asset.url, asset.path, multi_options=[asset.clone_options])
+        repo = git.Repo.clone_from(asset.url, asset.path, multi_options=[asset.clone_options] if asset.clone_options else None)
         logger.info(f"Cloned {asset.name}")
         
     pull_result = repo.remotes.origin.pull()
@@ -44,8 +46,10 @@ async def update_repo(asset: Asset):
     for fetch_info in pull_result:
         if fetch_info.flags & git.FetchInfo.NEW_HEAD:
             # If the head moved locally, that indicates some changes have been applied
+            logger.info(f"An update has been applied to {asset.name} (New Head)")
             return True
         if fetch_info.flags & git.FetchInfo.FAST_FORWARD:
             # A fast-forward merge is a pull
-           return True
+            logger.info(f"An update has been applied to {asset.name} (Fast Forward)")
+            return True
     return False
