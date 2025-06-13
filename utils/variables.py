@@ -37,12 +37,16 @@ LOGGER_NAME: str = "bot"
 """The name of the logging instance."""
 UNAMI_API = "https://umami.ets2la.com/api/"
 """Unami stats API endpoint"""
+SUPPORT_API = "ws://localhost:8001/ws/bot"
+"""ETS2LA chat support API endpoint"""
 #TRANSLATION_UPDATE_CHANNEL = 1381627489574453258
 TRANSLATION_UPDATE_CHANNEL = 1272294263874654240
 """The channel to send translation updates to."""
 #UPDATE_CHANNEL = 1381627373627244655
 UPDATE_CHANNEL = 1120734880133820537
 """The channel to send updates to."""
+SUPPORT_TICKET_CHANNEL = 1381289250733166592
+"""The channel to send support tickets to."""
 
 # Paths
 PATH = os.path.dirname(os.path.dirname(__file__))

@@ -22,6 +22,7 @@ cogs = [
     "xdd",
     "update_watcher",
     "verify",
+    "support"
 ]
 
 @bot.event
