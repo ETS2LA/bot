@@ -12,7 +12,7 @@ logger = logging.getLogger()
 class Support(commands.Cog):
     def __init__(self, bot : commands.Bot):
         self.bot : commands.Bot = bot
-        self.ws : websockets.WebSocketClientProtocol= None
+        self.ws : websockets.WebSocketClientProtocol = None
 
         asyncio.create_task(self.ws_loop())
 

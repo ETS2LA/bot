@@ -3,6 +3,7 @@ from utils.classes import Asset
 from discord import Intents
 import os
 
+# Extract environment variables
 _env_data = open(".env", "r").readlines()
 _env_data = [x.strip() for x in _env_data]
 
@@ -26,25 +27,30 @@ for i in _env_data:
     _env_dictionary[key] = value
 
 ENV = SimpleNamespace(**_env_dictionary)
-"""Enviroment variables."""
+"""Enviroment variables"""
 ENV.ADMINS = [ENV.ADMINS] if isinstance(ENV.ADMINS, int) else ENV.ADMINS
-"""Explicitly ensure that ENV.ADMINS is a list."""
+"""Explicitly ensure that ENV.ADMINS is a list"""
 
-# General constants
+# General constants and URLs
 PREFIX: str = "!"
-"""The prefix for commands."""
-LOGGER_NAME: str = "bot"
-"""The name of the logging instance."""
+"""The prefix for commands"""
 UNAMI_API = "https://umami.ets2la.com/api/"
 """Unami stats API endpoint"""
-SUPPORT_API = "ws://localhost:8001/ws/bot"
-"""ETS2LA chat support API endpoint"""
+SUPPORT_API_BASE = "localhost:8001"
+"""Base URL for the ETS2LA chat support API"""
+SUPPORT_WS = f"ws://{SUPPORT_API_BASE}/ws/bot"
+"""ETS2LA chat support websocket endpoint for relaying messages"""
+SUPPORT_API = f"http://{SUPPORT_API_BASE}/"
+"""ETS2LA chat support API endpoint for sending metadata"""
+
+# Channels (Commented out channels are for the main ETS2LA server)
 #TRANSLATION_UPDATE_CHANNEL = 1381627489574453258
 TRANSLATION_UPDATE_CHANNEL = 1272294263874654240
 """The channel to send translation updates to."""
 #UPDATE_CHANNEL = 1381627373627244655
 UPDATE_CHANNEL = 1120734880133820537
 """The channel to send updates to."""
+#
 SUPPORT_TICKET_CHANNEL = 1381289250733166592
 """The channel to send support tickets to."""
 
@@ -52,10 +58,11 @@ SUPPORT_TICKET_CHANNEL = 1381289250733166592
 PATH = os.path.dirname(os.path.dirname(__file__))
 """Root of the filesystem"""
 LOG_FILE = os.path.join(PATH, "bot.log")
-"""The path to the log file."""
+"""The path to the log file"""
 ASSETS_FOLDER = os.path.join(PATH, "Assets")
-"""The path where assets are stored."""
+"""The path where assets are stored"""
 VERIFIED_USERS_FILE = os.path.join(PATH, "Assets", "verified.txt")
+"""The path to the list of verified users"""
 ASSET_URLS : list[Asset] = [
     Asset(
         "ETS2LA", 
@@ -69,11 +76,11 @@ ASSET_URLS : list[Asset] = [
         ASSETS_FOLDER
     )
 ]
-"""Defintion of assets and their URLs."""
+"""Defintion of assets and their URLs"""
 
 # Discord config
 INTENTS = Intents.default()
 INTENTS.message_content = True
 INTENTS.presences = True
 INTENTS.members = True
-"""Intent config for discordpy bot."""
+"""Intent config for discord bot"""
