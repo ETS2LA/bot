@@ -10,16 +10,17 @@ _env_dictionary = {}
 for i in _env_data:
     key = i.split("=")[0]
     value = i.replace(i.split("=")[0] + "=", "")
-    if "," in value: # Suppot lists
+    if "," in value: # Support lists
         value = [x.strip() for x in value.split(",")]
-        for value in value:
+        for i, val in enumerate(value):
             try: # Try to convert to int
-                value = int(value)
+                value[i] = int(val)
             except ValueError:
                 pass
     
     try: # Try to convert to int
-        value = int(value)
+        if type(value) == str:
+            value = int(value)
     except ValueError:
         pass
     
@@ -35,7 +36,7 @@ PREFIX: str = "!"
 """The prefix for commands."""
 LOGGER_NAME: str = "bot"
 """The name of the logging instance."""
-UNAMI_API = "https://umami.ets2la.com/api/"
+UMAMI_API = "https://umami.ets2la.com/api"
 """Unami stats API endpoint"""
 #TRANSLATION_UPDATE_CHANNEL = 1381627489574453258
 TRANSLATION_UPDATE_CHANNEL = 1272294263874654240

@@ -11,6 +11,9 @@ class ping(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx: commands.Context, member: discord.Member = None):
+        """
+        Ping the bot to check its responsiveness.
+        """
         if member is None:
             member = ctx.author
         
