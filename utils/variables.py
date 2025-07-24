@@ -42,17 +42,19 @@ SUPPORT_WS = f"ws://{SUPPORT_API_BASE}/ws/bot"
 """ETS2LA chat support websocket endpoint for relaying messages"""
 SUPPORT_API = f"http://{SUPPORT_API_BASE}/"
 """ETS2LA chat support API endpoint for sending metadata"""
+DISCORD_WEBHOOK = f"https://discord.com/api/webhooks/1384921134008369222/eU_4XGooncwJNGxiDZ5A0fDF361qQodbf9AxIwXXDoKRr69wgb5B9tw6rSkIMbZd1qiP"
+"""Webhook which allows for bot users to send messages to the support channel"""
 
 # Channels (Commented out channels are for the main ETS2LA server)
 #TRANSLATION_UPDATE_CHANNEL = 1381627489574453258
 TRANSLATION_UPDATE_CHANNEL = 1272294263874654240
-"""The channel to send translation updates to."""
+"""The channel to send translation updates to (Text)"""
 #UPDATE_CHANNEL = 1381627373627244655
 UPDATE_CHANNEL = 1120734880133820537
-"""The channel to send updates to."""
+"""The channel to send updates to (Text)"""
 #
 SUPPORT_TICKET_CHANNEL = 1381289250733166592
-"""The channel to send support tickets to."""
+"""The channel to send support tickets to (Forum)"""
 
 # Paths
 PATH = os.path.dirname(os.path.dirname(__file__))
