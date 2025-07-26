@@ -29,7 +29,7 @@ class update_watcher(commands.Cog):
             
         author = commit.author.name
         timestamp = int(commit.committed_date)
-        link = get_url_for_hash(commit.hexsha, "ets2la")
+        link = get_url_for_hash(commit.hexsha, ets2la_asset)
         commit_hash = commit.hexsha[:9]
         added_lines = commit.stats.total['insertions']
         removed_lines = commit.stats.total['deletions']
