@@ -6,5 +6,5 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - /mnt/Zenith/bot:app/Assets
+      - /mnt/Zenith/bot:/app/Assets
     restart: always
