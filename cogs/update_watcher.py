@@ -1,4 +1,5 @@
-from utils.update import update_repo, get_last_commit, get_url_for_hash
+from utils.update import update_repo, get_last_commit, get_url_for_hash, get_commit_by_hash
+from utils.message import error_embed, success_embed
 import utils.variables as variables
 import utils.classes as classes
 
@@ -22,6 +23,7 @@ class update_watcher(commands.Cog):
             title = title[:-1]
 
         description = commit.message.replace(title + "\n\n", "")
+        description = description.replace(title + "\n", "")
         if description.startswith("\n"):
             description = description[1:]
         if description.endswith("\n"):
@@ -31,22 +33,57 @@ class update_watcher(commands.Cog):
         timestamp = int(commit.committed_date)
         link = get_url_for_hash(commit.hexsha, ets2la_asset)
         commit_hash = commit.hexsha[:9]
-        added_lines = commit.stats.total['insertions']
-        removed_lines = commit.stats.total['deletions']
+        changed_files = commit.stats.files
 
         if self.channel:
             message = f"### Title\n"
             message += f"{title}\n\n"
-            message += f"**Description**\n{description}\n\n"
+            if description:
+                message += f"**Description**\n{description}\n\n"
             message += f"**Changes**\n"
             message += f"-# [View detailed information](<{link}>)\n"
             message += f"```diff\n"
-            message += f"+ {added_lines} additions\n"
-            message += f"- {removed_lines} deletions\n"
+            for file, stats in changed_files.items():
+                message += f"=== {file} ===\n"
+                if stats['insertions'] > 0:
+                    message += f"+ {stats['insertions']} lines\n"
+                if stats['deletions'] > 0:
+                    message += f"- {stats['deletions']} lines\n"
+                message += "\n"
+                    
             message += "```\n\n"
             message += f"-# Commit **{commit_hash}** by **{author}** on <t:{timestamp}>"
             
             await self.channel.send(message)
+
+    @commands.command()
+    async def latest_update(self, ctx: commands.Context):
+        author = ctx.author
+        if author.id not in variables.ENV.ADMINS:
+            await ctx.send(embed=error_embed("You do not have permission to run this command."))
+            return
+        
+        last_commit = get_last_commit(ets2la_asset)
+        if last_commit:
+            await self.send_update_message(last_commit)
+        else:
+            await ctx.send(embed=error_embed("No commits found."))
+            
+    @commands.command()
+    async def send_commit(self, ctx: commands.Context, hash: str):
+        author = ctx.author
+        if author.id not in variables.ENV.ADMINS:
+            await ctx.send(embed=error_embed("You do not have permission to run this command."))
+            return
+        if not hash:
+            await ctx.send(embed=error_embed("Please provide a commit hash."))
+            return
+        
+        commit = get_commit_by_hash(hash, ets2la_asset)
+        if commit:
+            await self.send_update_message(commit)
+        else:
+            await ctx.send(embed=error_embed("No commit found with the specified hash."))
 
     @tasks.loop(minutes=1)
     async def update_repo_task(self):

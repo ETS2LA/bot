@@ -20,6 +20,14 @@ def get_last_commit(asset: Asset) -> git.Commit:
     
     return list(repo.iter_commits())[0]
 
+def get_commit_by_hash(hash: str, asset: Asset) -> git.Commit:
+    try:
+        repo = git.Repo(asset.path)
+    except git.exc.InvalidGitRepositoryError:
+        return None
+
+    return repo.commit(hash)
+
 def get_commits_for(asset: Asset):
     try:
         repo = git.Repo(asset.path)

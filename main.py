@@ -17,7 +17,6 @@ bot = commands.Bot(
 cogs = [
     "ping",
     "version",
-    "stats",
     "translation",
     "xdd",
     "update_watcher",
@@ -74,17 +73,17 @@ async def reload(ctx: commands.Context, *target_cogs):
         logger.info(f"[bold]{author.name}[/bold] ran the reload command")
 
     # Define variables
-    cogs = cogs if not target_cogs else target_cogs
-    amount = len(cogs)
+    target_cogs = cogs if not target_cogs else target_cogs
+    amount = len(target_cogs)
     embeds = []
 
     # Create initial embed messages
-    for i, cog in enumerate(cogs):
+    for i, cog in enumerate(target_cogs):
         embeds.append(info_embed("Reloading", f"Reloading the `{cog}` extension ({i + 1}/{amount})"))
 
     # Reload extensions and update embeds with results
     message = await ctx.send(embeds=embeds)
-    for i, cog in enumerate(cogs):
+    for i, cog in enumerate(target_cogs):
         try:
             await bot.reload_extension(f"cogs.{cog}")
             embeds[i] = success_embed(f"Successfully reloaded the `{cog}` extension ({i + 1}/{amount})")
