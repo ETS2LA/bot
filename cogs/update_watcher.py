@@ -40,7 +40,7 @@ class update_watcher(commands.Cog):
             message += f"**Description**\n{description}\n\n"
             message += f"**Changes**\n"
             message += f"-# [View detailed information](<{link}>)\n"
-            message += f"```\n"
+            message += f"```diff\n"
             message += f"+ {added_lines} additions\n"
             message += f"- {removed_lines} deletions\n"
             message += "```\n\n"
@@ -50,11 +50,14 @@ class update_watcher(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def update_repo_task(self):
-        updated = await update_repo(ets2la_asset)
-        if updated:
-            last_commit = get_last_commit(ets2la_asset)
-            if last_commit:
-                await self.send_update_message(last_commit)
+        try:
+            updated = await update_repo(ets2la_asset)
+            if updated:
+                last_commit = get_last_commit(ets2la_asset)
+                if last_commit:
+                    await self.send_update_message(last_commit)
+        except:
+            pass
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(update_watcher(bot))
