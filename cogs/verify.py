@@ -3,6 +3,7 @@ import utils.variables as variables
 
 from discord.ext import commands, tasks
 import datetime
+import discord
 import logging
 import os
 
@@ -45,16 +46,17 @@ class verify(commands.Cog):
         return any(steam_word in message.content for steam_word in steam) and not any(excluded_steam_word in message.content for excluded_steam_word in excluded_steam)
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         author = message.author
         if author.id in verified_users or author.bot:
             return
         
+        has_only_image = len(message.attachments) > 1 and len(message.content.strip()) == 0
         has_money = self.has_money(message)
         has_link = self.has_link(message)
         has_steam = self.has_steam(message)
         
-        if has_money or has_link or has_steam:
+        if has_money or has_link or has_steam or has_only_image:
             text = "<@&1132519946799284315> "
             text += "Please check the user manually. "
             text += "They were flagged because of:"
@@ -67,6 +69,9 @@ class verify(commands.Cog):
             if has_steam:
                 text += "\n- First message references *Steam*."
                 logger.info(f"[{author.name}] was flagged as a possible scammer because of Steam references")
+            if has_only_image:
+                text += "\n- First message contains only images."
+                logger.info(f"[{author.name}] was flagged as a possible scammer because their first message contains only images")
                 
             await message.reply(embed=error_embed(text, title="Possible scammer detected"))
             await author.timeout(datetime.timedelta(days=1), reason="Possible scammer detected")
