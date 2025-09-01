@@ -43,13 +43,20 @@ class update_watcher(commands.Cog):
             message += f"**Changes**\n"
             message += f"-# [View detailed information](<{link}>)\n"
             message += f"```diff\n"
-            for file, stats in changed_files.items():
-                message += f"=== {file} ===\n"
-                if stats['insertions'] > 0:
-                    message += f"+ {stats['insertions']} lines\n"
-                if stats['deletions'] > 0:
-                    message += f"- {stats['deletions']} lines\n"
-                message += "\n"
+            if len(changed_files) < 8:
+                for file, stats in changed_files.items():
+                    message += f"=== {file} ===\n"
+                    if stats['insertions'] > 0:
+                        message += f"+ {stats['insertions']} lines\n"
+                    if stats['deletions'] > 0:
+                        message += f"- {stats['deletions']} lines\n"
+                    message += "\n"
+            else:
+                insertions = sum(stats['insertions'] for stats in changed_files.values())
+                deletions = sum(stats['deletions'] for stats in changed_files.values())
+                message += f"... {len(changed_files)} files changed ...\n"
+                message += f"+ {insertions} lines\n"
+                message += f"- {deletions} lines\n"
                     
             message += "```\n\n"
             message += f"-# Commit **{commit_hash}** by **{author}** on <t:{timestamp}>"
