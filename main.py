@@ -16,6 +16,7 @@ bot = commands.Bot(
 )
 cogs = [
     "ping",
+    "account",
     "version",
     "translation",
     "xdd",
