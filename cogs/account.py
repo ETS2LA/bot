@@ -45,16 +45,19 @@ class account(commands.Cog):
             return None
 
     @commands.command()
-    async def account(self, ctx: commands.Context, member: discord.Member = None):
+    async def account(self, ctx: commands.Context, member: discord.Member | str = None):
         """
         Display user account information.
         """
         if member is None:
             member = ctx.author
-            
+
         try:
-            tracking_data = self.get_response(tracking_url.format(member.id))
-            sessions_data = self.get_response(sessions_url.format(member.id))
+            tracking_data = self.get_response(tracking_url.format(member if isinstance(member, str) else member.id))
+            if tracking_data is None or tracking_data.get("status", 404) == 404:
+                await ctx.send(embed=error_embed("This user does not exist in our database."))
+                return
+            sessions_data = self.get_response(sessions_url.format(member if isinstance(member, str) else member.id))
         except requests.RequestException as e:
             await ctx.send(embed=error_embed(f"Failed to fetch account information. Please try again later.\n> {e}"))
             logger.error(f"Error fetching account info for {member.id}: {e}")
@@ -62,13 +65,12 @@ class account(commands.Cog):
 
         time = tracking_data.get("data", {}).get("time_used", 0)
         text = self.format_timedelta(datetime.timedelta(seconds=time))
-        if not text:
-            text = "No information / account not found."
             
         sessions_count = tracking_data.get("data", {}).get("sessions", 0)
-        if sessions_count <= 0:
-            sessions_count = 1
-            
+        if sessions_count <= 0 or not text:
+            await ctx.send(embed=error_embed("No session data available for this user. Please wait around 15 minutes after the first login for your data to refresh."))
+            return
+
         avg_time = time / sessions_count
         avg_text = self.format_timedelta(datetime.timedelta(seconds=avg_time), display_seconds=True)
         
@@ -87,10 +89,10 @@ class account(commands.Cog):
             longest_text = "N/A"
         else:
             longest_duration = longest_session.end - longest_session.start
-            longest_text = self.format_timedelta(longest_duration, display_seconds=True)
+            longest_text = self.format_timedelta(longest_duration)
                 
         await ctx.send(embed=success_embed(
-            f"That is spread over {sessions_count} sessions, averaging {avg_text} per session. Your longest session was {longest_text} starting on {longest_session.start.strftime('%Y-%m-%d %H:%M:%S') if longest_session else 'N/A'}.",
+            f"That is spread over {sessions_count} sessions, averaging {avg_text} per session. Your longest session was {longest_text} starting on {longest_session.start.strftime('%Y-%m-%d %H:%M:%S') if longest_session else 'N/A'} UTC.",
             text
         ))
                 
