@@ -48,6 +48,25 @@ class verify(commands.Cog):
         excluded_steam = ["workshop", "steamid", "steamid3", "steamid64"]
         return any(steam_word in message.content for steam_word in steam) and not any(excluded_steam_word in message.content for excluded_steam_word in excluded_steam)
 
+    @commands.command()
+    async def verify(self, ctx: commands.Context, member: discord.Member = None):
+        if ctx.author.id not in variables.ENV.ADMINS:
+            await ctx.send(embed=error_embed("You do not have permission to use this command."))
+            return
+        
+        if member is None:
+            await ctx.send(embed=error_embed("Please specify a member to verify."))
+            return
+        
+        if member.id in verified_users:
+            await ctx.send(embed=success_embed(f"{member.name} is already verified."))
+            return
+        
+        verified_users.append(member.id)
+        save_verified()
+        await ctx.send(embed=success_embed(f"{member.name} has been verified manually by {ctx.author.name}."))
+        await ctx.guild.get_channel(1285245017107071066).send(embed=success_embed(f"{member.name} ({member.id}) has been verified manually by {ctx.author.name}.", "User verified"))
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         author = message.author
@@ -81,9 +100,12 @@ class verify(commands.Cog):
                 
             await message.reply(embed=error_embed(text, title="Possible scammer detected"))
             await author.timeout(datetime.timedelta(days=1), reason="Possible scammer detected")
+            await message.guild.get_channel(1285245017107071066).send(embed=error_embed(f"Found potential issues with {author.name} ({author.id}) who was flagged as a possible scammer. Original message: {message.jump_url}", "Warning!"))
         else:
             await message.reply(embed=success_embed("Your first message indicates no signs of potential scamming.\n-# You might see this message multiple times due to updates to the verification system.", title="Verified"), delete_after=5)
             verified_users.append(author.id)
+
+            await message.guild.get_channel(1285245017107071066).send(embed=success_embed(f"Found no issues with {author.name} ({author.id}) who was verified successfully. Original message: {message.jump_url}", "User verified"))
             logger.info(f"[{author.name}] was verified")
 
 async def setup(bot: commands.Bot):
