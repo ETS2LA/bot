@@ -51,6 +51,9 @@ class verify(commands.Cog):
         if author.id in verified_users or author.bot:
             return
         
+        if message.channel.name == "system":
+            return
+        
         has_only_image = len(message.attachments) > 1 and len(message.content.strip()) == 0
         has_money = self.has_money(message)
         has_link = self.has_link(message)
