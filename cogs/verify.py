@@ -32,6 +32,9 @@ class verify(commands.Cog):
     async def save_verified_task(self):
         save_verified()
 
+    def has_only_images(self, message):
+        return len(message.attachments) > 0 and len(message.content.strip()) == 0
+
     def has_link(self, message):
         links = ["https://", "http://", "www.", ".com", ".net", ".org"]
         excluded_links = ["discord.gg", "discordapp.com", "discord.com", "tenor.com", "giphy.com", "youtube.com", "twitch.tv", "youtu.be", "ets2la.com", "github.com", "gitlab.com"]
@@ -54,14 +57,14 @@ class verify(commands.Cog):
         if message.channel.name == "system":
             return
         
-        has_only_image = len(message.attachments) > 1 and len(message.content.strip()) == 0
+        has_only_image = self.has_only_images(message)
         has_money = self.has_money(message)
         has_link = self.has_link(message)
         has_steam = self.has_steam(message)
         
         if has_money or has_link or has_steam or has_only_image:
-            text = "<@&1132519946799284315> "
-            text += "Please check the user manually. "
+            await message.channel.send("<@&1132519946799284315>")
+            text = "Please check this user manually. "
             text += "They were flagged because of:"
             if has_money:
                 text += "\n- First message contains money related terms."
